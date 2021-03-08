@@ -1,0 +1,23 @@
+a{
+    text-decoration: none;
+    color: aliceblue;
+    font-family:'Ubuntu', sans-serif;
+}
+
+a:hover{
+    text-shadow: 0 0 3px orange, 0 0 5px red;
+}
+
+.heading{
+    text-align: left;
+    margin: 20px;
+    font-family: 'Ubuntu', sans-serif;
+    color: aliceblue;
+}
+
+body{
+    background-image: url('https://wallpapercave.com/wp/wp2166308.jpg');
+    
+    background-size: cover;
+    background-repeat: no-repeat;
+}

@@ -1,0 +1,112 @@
+.nav li{
+    display: inline;
+    padding: 11px;
+}
+
+.nav{
+    background-color: black;;
+    padding: 7px;
+}
+
+.nav a{
+    text-decoration: none;
+    color: black;
+    font-family: 'Ubuntu', sans-serif;
+    position: relative;
+    left: 970px;
+    top: 45px;
+    z-index: 10;
+}
+
+#heading h1{
+    text-align: left;
+    position: relative;
+    top: -15px;
+    left: 155px;
+    margin-right: 200px;
+    color: teal;
+    font-family: 'Ubuntu', sans-serif;
+}
+
+img{
+    position:relative;
+    width: 60px;
+    top: -90px;
+    left: 80px;
+    border: black solid;
+}
+
+body{
+    margin: 0;
+    padding: 0;
+    /*background: linear-gradient(to right top, #65dfc9, #6cdbeb);*/
+}
+
+.nav a:hover{
+    text-shadow: 0 0 3px #FF0000, 0 0 5px #0000FF;   /*text-shadow: offset-x offset-y [blur-radius] [color];*/
+}
+
+#jumbo{
+    background-image: url('https://cdn.pixabay.com/photo/2018/03/21/07/16/learning-3245793_960_720.jpg');
+    min-height: 300px;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    top: -90px;
+    margin:5px 80px 30px 80px;
+    border: black solid 10px;
+    
+}
+
+.footer{
+    text-align: center;
+    font-family: 'Ubuntu', sans-serif;
+    font-size: medium;
+    padding: .5px;
+    margin-top: 300px;
+    background-color: black;
+    color: aliceblue;
+}
+
+.para{
+    font-family: 'Ubuntu', sans-serif;
+    text-align: center;
+    position: relative;
+    bottom: 69px;
+    font-size: 25px;
+    text-transform: uppercase;
+    text-shadow: 0 0 5px chartreuse, 0 0 5px blue;
+}
+
+.flex-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: -5px 80px 30px 150px;
+    
+  }
+
+.flex-container > div {
+    background-color:ghostwhite;
+    width: 180px;
+    margin: 10px;
+    text-align: center;
+    font-size: 30px;
+    line-height: 40px;
+    font-family: 'Ubuntu', sans-serif;
+    border: black solid 5px;
+    font-size: 15px;
+    text-transform: uppercase;
+    text-shadow: 0 0 5px chartreuse, 0 0 5px blue;
+    font-weight: bold;
+  }
+
+#quo q{
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+#quo p{
+    text-align: center;
+    font-weight: bolder;
+}

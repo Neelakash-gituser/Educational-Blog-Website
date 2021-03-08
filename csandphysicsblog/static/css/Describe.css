@@ -1,0 +1,30 @@
+h3{
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    text-align: center;
+    text-shadow: 0 0 5px chartreuse, 0 0 5px blue;
+}
+
+.content{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    color: black;
+
+}
+
+.content p{
+    font-family:'Ubuntu', sans-serif;
+    font-weight: bold;
+}
+
+.content h4{
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+body{
+    margin: 0;
+    background-image: url('https://webprintmore.com/wp-content/uploads/2017/08/4214905-background-images-for-websites.jpg');
+    background-position: center;
+    background-size: cover;
+}

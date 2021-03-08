@@ -1,0 +1,27 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap">
+    <link rel="stylesheet" href="{% static 'css/Publish.css' %}">
+    <title>Publish Article</title>
+</head>
+<body>
+    <h1>Weekly Articles</h1>
+    <div class="hello">
+        <h2>Wanna get your article published ? Send your article to us at scienceprofessor9@gmail.com .</h2>
+    </div>
+
+    <div class="art">
+        {% for con in article %}
+            <h2>Subject : {{con.Topic}}</h2>
+            <h3>Topic : {{con.Sub_Topic}}</h3>
+            <p>{{con.Matter}}</p>
+            <h3>This article is contributed by : {{con.Author}}</h3>
+        {% endfor %}
+    </div>
+</body>
+</html>

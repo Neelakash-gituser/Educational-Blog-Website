@@ -1,0 +1,36 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/ContactUs.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet">
+    <title>Contact-Us</title>
+</head>
+<body>
+    <div class="head">
+        <h1>Contact Us</h1>
+    </div>
+    
+    <p><q>For good ideas and true innovation, you need human interaction, conflict, argument, debate. </q> - Margaret Heffernan</p>
+    
+    <form action="{% url 'contact' %}" method="POST">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="labelinput">
+                {{field.error}}
+                {{field.label_tag}} </div> {{field}}
+            
+        {% endfor %} <br>
+        <button type="submit" name="send" onclick="myFunction()">SUBMIT</button>
+    </form>
+</body>
+</html>
+
+<script>
+    function myFunction(){
+        alert("Thank You ! We'll get back to you as soon as possible");
+    }
+</script>

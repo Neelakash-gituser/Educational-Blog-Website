@@ -1,0 +1,23 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/Describe.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet">
+    <title>{{desc.Topic}} : Science-Professor</title>
+</head>
+<body>
+    
+        <h3>{{entries.Sub_Topic}}</h3>
+        <div class="content">
+            <p>{{entries.Content}}</p>  <br>
+            <h4>About Author</h4>
+            <img src="{{entries.Author_pic.url }}" alt="img" width="100"> 
+            <p>{{entries.Added_by}} <br> {{entries.Date_added}}</p>
+        </div>
+    
+</body>
+</html>

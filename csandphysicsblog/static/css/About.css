@@ -1,0 +1,44 @@
+h1{
+    text-align: center;
+    font-family:'Ubuntu', sans-serif;
+    background-color: black;
+    color: aliceblue;
+    margin-top: -2px;
+}
+
+p{
+    text-align: center;
+    font-family:'Ubuntu', sans-serif;
+    line-height: 50px;
+    color: aliceblue;
+    
+}
+
+h3{
+    text-align: center;
+    font-family:'Ubuntu', sans-serif;
+}
+
+.dev{
+    font-family:'Ubuntu', sans-serif;
+    text-align: center;
+    line-height: 25px;
+    font-weight: bold;
+    
+}
+
+img{
+    width: 15%;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+body{
+    background-image: url('https://retailworksinc.com/wp-content/uploads/2016/05/grayish-background.jpg');
+    margin: 0;
+}
+
+a{
+    color: chartreuse;
+}

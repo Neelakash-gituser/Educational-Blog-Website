@@ -1,0 +1,48 @@
+h1{
+    text-align: center;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-style: italic;
+    background-color: orange;
+    margin-top: -3px;
+    text-transform: uppercase;
+    border-color: black;
+}
+
+.hello{
+    text-align: center;
+    font-family: 'Ubuntu', sans-serif;
+    background-color: black;
+    color:aliceblue;
+    margin-top: -20px;
+    font-size: small;
+}
+
+.art h2{
+    text-align: left;
+    font-family: 'Ubuntu', sans-serif;
+    text-shadow: 0 0 5px red, 0 0 5px yellow;
+}
+
+.art h3{
+    text-align: left;
+    font-family: 'Ubuntu', sans-serif;
+    text-shadow: 0 0 5px black, 0 0 5px yellow;
+}
+
+.art p{
+    font-family: 'Ubuntu', sans-serif;
+    color: black;
+
+}
+
+.art{
+    margin-left: 2em;
+    font-family: 'Ubuntu', sans-serif;
+}
+
+body{
+    margin: 0;
+    background-image: url('https://mcdn.wallpapersafari.com/medium/67/77/G1Hv4V.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+}

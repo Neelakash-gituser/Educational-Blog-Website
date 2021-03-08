@@ -1,0 +1,27 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/Topic.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet">
+    <title>Topics-Science Professor</title>
+</head>
+
+<body>
+    <div class="heading">
+        <h1>Topics</h1>
+    </div>
+    {% for topic in topics %}
+    <div class="container">
+        <h3>
+            <li><a href="{% url 'details' topic.id %}">{{topic.Topic}}</a></li>
+        </h3>
+    </div>
+    {% endfor %}
+</body>
+
+</html>

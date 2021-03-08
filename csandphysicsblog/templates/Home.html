@@ -1,0 +1,66 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/Home.css' %}">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet">
+    <title>Science Professor</title>
+</head>
+
+<body>
+
+        <div id="navbar">
+            <div class="nav">
+                <li><a href="{% url 'topic' %}">Topics</a></li>
+                <li><a href="{% url 'publish' %}">Article</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
+                <li><a href="{% url 'about' %}">About</a></li>
+            </div>
+        </div>
+
+        <div id="heading">
+            <h1>Science Professor</h1>
+        </div>
+
+        <img src="https://www.nfscars.net/media/accounts/2017/01/23/photo.jpg" alt="">
+
+        <section id="jumbo">
+            
+        </section>
+
+        <div class="para">
+            <p>Topics that we cover</p>
+        </div>
+
+        <div class="flex-container">
+            <div>Physics</div>
+            <div>Economics</div>
+            <div>Computer Science</div>
+            <div>Chemistry</div>
+            <div>Mathematics</div>
+            <div>Biology</div>
+            <div>English</div>
+            <div>Hindi</div>
+            <div>Accounts</div>
+            <div>History</div>
+        </div>
+
+        <section id="quo">
+            <p><q>The more you read, the more things you will know, the more that you learn, the more places you go .</q></p>
+        </section>
+
+        <div class="footer">
+            <p>Science Professor&#169</p>
+        </div>
+
+        
+
+
+</body>
+
+</html>
