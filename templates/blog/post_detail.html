@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% load blog_extras humanize %}
+
+{% block title %}{{ post.title }} — {{ site_name }}{% endblock %}
+{% block meta_description %}{{ post.excerpt|truncatechars:160 }}{% endblock %}
+{% block og_title %}{{ post.title }}{% endblock %}
+{% block og_description %}{{ post.excerpt|truncatechars:200 }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_image %}{% if post.cover_image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.cover_image.url }}">{% endif %}{% endblock %}
+
+{% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "{{ post.title|escapejs }}",
+  "description": "{{ post.excerpt|escapejs }}",
+  "datePublished": "{{ post.display_date|date:'c' }}",
+  "dateModified": "{{ post.updated_at|date:'c' }}",
+  "author": {"@type": "Person", "name": "{{ post.author.profile.name|escapejs }}"},
+  "publisher": {"@type": "Organization", "name": "{{ site_name|escapejs }}"},
+  "mainEntityOfPage": "{{ share_url }}"
+}
+</script>
+{% endblock %}
+
+{% block progress %}
+<div class="progress-bar" aria-hidden="true"><span data-progress></span></div>
+{% endblock %}
+
+{% block content %}
+{% share_links share_url post.title as share %}
+
+{% if not post.is_published %}
+  <div class="shell" style="margin-top: 1rem">
+    <div class="flash flash-warning"><span>This is a draft — only you can see it. Publish it from the <a href="{% url 'blog:post_edit' post.slug %}">editor</a>.</span></div>
+  </div>
+{% endif %}
+
+<article>
+  <header class="shell article-header">
+    <div class="article-header-inner">
+      <div class="meta-row">
+        {% if post.category %}
+          <a class="topic-badge" href="{{ post.category.get_absolute_url }}" style="--topic-color: {{ post.category.color }}">{{ post.category.icon }} {{ post.category.name }}</a>
+        {% endif %}
+        <span>{{ post.display_date|date:"j F Y" }}</span>
+        <span class="meta-dot"></span>
+        <span>{{ post.read_minutes }} min read</span>
+        <span class="meta-dot"></span>
+        <span>{{ post.view_count|intcomma }} view{{ post.view_count|pluralize }}</span>
+      </div>
+
+      <h1 class="article-title">{{ post.title }}</h1>
+      {% if post.subtitle %}<p class="article-standfirst">{{ post.subtitle }}</p>{% endif %}
+
+      <div class="article-byline">
+        {{ post.author.profile|avatar_or_initials }}
+        <div>
+          <p class="byline-name"><a href="{{ post.author.profile.get_absolute_url }}">{{ post.author.profile.name }}</a></p>
+          <p class="byline-meta">{{ post.author.profile.headline|default:"Contributor" }}</p>
+        </div>
+        {% if can_edit %}
+          <a class="button button-outline button-sm" style="margin-left: auto" href="{% url 'blog:post_edit' post.slug %}">Edit post</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  {% if post.cover_image %}
+    <figure class="shell article-cover">
+      <img src="{{ post.cover_image.url }}" alt="{{ post.cover_caption|default:post.title }}">
+      {% if post.cover_caption %}<figcaption>{{ post.cover_caption }}</figcaption>{% endif %}
+    </figure>
+  {% endif %}
+
+  <div class="shell article-layout">
+    {% if post.toc_html %}
+      <aside class="article-rail article-rail-left">
+        <nav class="toc" aria-label="Table of contents">
+          <p class="toc-title">On this page</p>
+          {{ post.toc_html|safe }}
+        </nav>
+      </aside>
+    {% endif %}
+
+    <div class="article-body" data-article-body>
+      <div class="prose">{{ post.content_html|safe }}</div>
+
+      {% if post.tags.all %}
+        <div class="tag-cloud" style="margin-top: 2.5rem">
+          {% for tag in post.tags.all %}<a class="chip" href="{{ tag.get_absolute_url }}">#{{ tag.name }}</a>{% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="article-actions">
+        {% if user.is_authenticated %}
+          <form action="{% url 'blog:post_like' post.slug %}" method="post" data-async>
+            {% csrf_token %}
+            <button type="submit" class="action-pill {% if has_liked %}is-on{% endif %}" data-label-on="Liked" data-label-off="Like">
+              ♥ <span data-label>{% if has_liked %}Liked{% else %}Like{% endif %}</span> <span data-count>{{ like_count }}</span>
+            </button>
+          </form>
+          <form action="{% url 'blog:post_bookmark' post.slug %}" method="post" data-async>
+            {% csrf_token %}
+            <button type="submit" class="action-pill {% if has_bookmarked %}is-on{% endif %}" data-label-on="Saved" data-label-off="Save">
+              🔖 <span data-label>{% if has_bookmarked %}Saved{% else %}Save{% endif %}</span>
+            </button>
+          </form>
+        {% else %}
+          <a class="action-pill" href="{% url 'accounts:login' %}?next={{ request.path|urlencode_value }}">♥ Sign in to like</a>
+        {% endif %}
+
+        <div class="share-row">
+          <span class="muted" style="font-size: 0.8rem">Share</span>
+          <a class="icon-button" href="{{ share.x }}" target="_blank" rel="noopener" aria-label="Share on X" title="Share on X">𝕏</a>
+          <a class="icon-button" href="{{ share.linkedin }}" target="_blank" rel="noopener" aria-label="Share on LinkedIn" title="Share on LinkedIn">in</a>
+          <a class="icon-button" href="{{ share.reddit }}" target="_blank" rel="noopener" aria-label="Share on Reddit" title="Share on Reddit">r/</a>
+          <a class="icon-button" href="{{ share.hn }}" target="_blank" rel="noopener" aria-label="Share on Hacker News" title="Share on Hacker News">Y</a>
+          <a class="icon-button" href="{{ share.mail }}" aria-label="Share by email" title="Share by email">✉</a>
+        </div>
+      </div>
+
+      <section class="author-card">
+        {{ post.author.profile|avatar_or_initials }}
+        <div>
+          <h3>{{ post.author.profile.name }}</h3>
+          {% if post.author.profile.headline %}<p class="muted" style="font-size: 0.85rem">{{ post.author.profile.headline }}</p>{% endif %}
+          {% if post.author.profile.bio %}<p style="margin-top: 0.5rem">{{ post.author.profile.bio }}</p>{% endif %}
+          <div class="author-links">
+            <a href="{{ post.author.profile.get_absolute_url }}">All posts by {{ post.author.profile.name }}</a>
+            {% if post.author.profile.website %}<a href="{{ post.author.profile.website }}" rel="noopener nofollow" target="_blank">Website</a>{% endif %}
+            {% if post.author.profile.github %}<a href="https://github.com/{{ post.author.profile.github }}" rel="noopener nofollow" target="_blank">GitHub</a>{% endif %}
+            {% if post.author.profile.twitter %}<a href="https://twitter.com/{{ post.author.profile.twitter }}" rel="noopener nofollow" target="_blank">X</a>{% endif %}
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</article>
+
+{% if related_posts %}
+<section class="shell section">
+  <div class="section-head"><div><p class="eyebrow">Keep going</p><h2>Related reading</h2></div></div>
+  <div class="post-grid">
+    {% for post in related_posts %}{% include "partials/post_card.html" %}{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="shell" id="comments">
+  <div class="comments">
+    <div class="comments-head">
+      <h2>Discussion</h2>
+      <span class="count">{{ comment_count }} comment{{ comment_count|pluralize }}</span>
+    </div>
+
+    {% if not post.allow_comments %}
+      <p class="muted">Comments are closed on this post.</p>
+    {% elif user.is_authenticated %}
+      <form class="comment-form" action="{% url 'blog:comment_create' post.slug %}" method="post">
+        {% csrf_token %}
+        {{ comment_form.body }}
+        <div class="comment-form-foot">
+          <span class="comment-form-hint">Markdown supported — use <code>```python</code> fences for code.</span>
+          <button type="submit" class="button button-primary">Post comment</button>
+        </div>
+      </form>
+    {% else %}
+      <div class="card" style="padding: 1.25rem; margin-bottom: 2rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap">
+        <p class="muted" style="margin-right: auto">Sign in to join the discussion — it keeps the spam out.</p>
+        <a class="button button-primary button-sm" href="{% url 'accounts:login' %}?next={{ request.path|urlencode_value }}%23comments">Sign in</a>
+        <a class="button button-outline button-sm" href="{% url 'accounts:signup' %}">Create an account</a>
+      </div>
+    {% endif %}
+
+    {% if comments %}
+      <div class="comment-thread">
+        {% for comment in comments %}
+          {% include "partials/comment.html" with comment=comment %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <span class="glyph">💬</span>
+        <h3>No comments yet</h3>
+        <p>Got a question, a correction or a better approach? Be the first to say so.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block math %}{% include "partials/mathjax.html" %}{% endblock %}

@@ -1,0 +1,31 @@
+{% load blog_extras humanize %}
+<article class="post-card" {% if post.category %}style="--topic-color: {{ post.category.color }}"{% endif %}>
+  <a class="post-card-media" href="{{ post.get_absolute_url }}" tabindex="-1" aria-hidden="true">
+    {% if post.cover_image %}
+      <img src="{{ post.cover_image.url }}" alt="" loading="lazy">
+    {% else %}
+      <span class="post-card-glyph">{{ post.category.icon|default:"✳" }}</span>
+    {% endif %}
+  </a>
+  <div class="post-card-body">
+    <div class="meta-row">
+      {% if post.category %}
+        <a class="topic-badge" href="{{ post.category.get_absolute_url }}">{{ post.category.icon }} {{ post.category.name }}</a>
+      {% endif %}
+      <span>{{ post.read_minutes }} min read</span>
+    </div>
+    <h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+    <p class="post-card-excerpt">{{ post.excerpt }}</p>
+    <div class="post-card-foot">
+      {{ post.author.profile|avatar_or_initials }}
+      <span>
+        <a href="{{ post.author.profile.get_absolute_url }}">{{ post.author.profile.name }}</a>
+        · {{ post.display_date|date:"j M Y" }}
+      </span>
+      <span class="post-stats">
+        <span title="Comments">💬 {{ post.comment_total|default:0 }}</span>
+        <span title="Likes">♥ {{ post.like_total|default:0 }}</span>
+      </span>
+    </div>
+  </div>
+</article>

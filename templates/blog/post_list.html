@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load blog_extras %}
+
+{% block title %}{{ heading }} — {{ site_name }}{% endblock %}
+{% block meta_description %}{{ subheading|default:site_description }}{% endblock %}
+
+{% block content %}
+<section class="shell page-head">
+  {% if category %}
+    <p class="eyebrow" style="color: {{ category.color }}">{{ category.icon }} Topic</p>
+  {% elif tag %}
+    <p class="eyebrow">Tag</p>
+  {% else %}
+    <p class="eyebrow">{% if is_search %}Search{% else %}Library{% endif %}</p>
+  {% endif %}
+  <h1>{{ heading }}</h1>
+  {% if subheading %}<p>{{ subheading }}</p>{% endif %}
+  {% if category.description %}<p>{{ category.description }}</p>{% endif %}
+</section>
+
+<section class="shell" style="padding-bottom: 4rem">
+  {% include "partials/filters.html" %}
+
+  {% if page_obj.object_list %}
+    <p class="muted" style="margin-bottom: 1rem; font-size: 0.86rem">
+      {{ page_obj.paginator.count }} article{{ page_obj.paginator.count|pluralize }}
+    </p>
+    <div class="post-grid">
+      {% for post in page_obj %}{% include "partials/post_card.html" %}{% endfor %}
+    </div>
+    {% include "partials/pagination.html" %}
+  {% else %}
+    <div class="empty-state">
+      <span class="glyph">🔍</span>
+      <h3>Nothing here yet</h3>
+      {% if query %}
+        <p>No articles match “{{ query }}”. Try a broader term, or browse by topic.</p>
+        <a class="button button-outline" href="{% url 'blog:post_list' %}">Clear the search</a>
+      {% else %}
+        <p>No published articles in this section so far.</p>
+        <a class="button button-outline" href="{% url 'blog:topics' %}">Browse topics</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

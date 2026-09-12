@@ -1,0 +1,11 @@
+<section class="newsletter">
+  <p class="eyebrow">Stay in the loop</p>
+  <h2>New explainers, straight to your inbox</h2>
+  <p>One email when something new is published. No digests, no tracking, unsubscribe whenever.</p>
+  <form action="{% url 'blog:subscribe' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <input type="email" name="email" placeholder="you@example.com" aria-label="Email address" required>
+    <button type="submit" class="button button-primary">Subscribe</button>
+  </form>
+</section>

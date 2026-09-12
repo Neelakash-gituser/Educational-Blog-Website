@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Topics — {{ site_name }}{% endblock %}
+{% block meta_description %}Every topic covered on {{ site_name }}, from computer science to physics.{% endblock %}
+
+{% block content %}
+<section class="shell page-head">
+  <p class="eyebrow">Browse</p>
+  <h1>Topics</h1>
+  <p>Each topic collects the articles written about it. Tags below go one level finer.</p>
+</section>
+
+<section class="shell" style="padding-bottom: 3rem">
+  {% if categories %}
+    <div class="topic-grid">
+      {% for category in categories %}
+        <a class="topic-card" href="{{ category.get_absolute_url }}" style="--topic-color: {{ category.color }}">
+          <span class="topic-card-icon">{{ category.icon }}</span>
+          <h3>{{ category.name }}</h3>
+          <p>{{ category.tagline|default:category.description|truncatewords:16 }}</p>
+          <span class="count">{{ category.total }} article{{ category.total|pluralize }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <span class="glyph">🗂️</span>
+      <h3>No topics yet</h3>
+      <p>Topics are created in the admin. Run <code>python manage.py seed_demo</code> to get a starter set.</p>
+    </div>
+  {% endif %}
+</section>
+
+{% if tags %}
+<section class="shell section-tight" style="padding-bottom: 4rem">
+  <div class="section-head"><div><p class="eyebrow">Fine grained</p><h2>All tags</h2></div></div>
+  <div class="tag-cloud">
+    {% for tag in tags %}<a class="chip" href="{{ tag.get_absolute_url }}">#{{ tag.name }} <span class="muted">{{ tag.total }}</span></a>{% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

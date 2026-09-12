@@ -1,0 +1,43 @@
+<footer class="site-footer">
+  <div class="shell footer-grid">
+    <div class="footer-brand">
+      <p class="footer-logo">{{ site_name }}</p>
+      <p class="footer-tagline">{{ site_tagline }}</p>
+      <p class="footer-rss">
+        <a href="{% url 'post_feed' %}">RSS feed</a> · <a href="/sitemap.xml">Sitemap</a>
+      </p>
+    </div>
+
+    <div class="footer-col">
+      <h2>Read</h2>
+      <a href="{% url 'blog:post_list' %}">All articles</a>
+      <a href="{% url 'blog:topics' %}">Topics</a>
+      <a href="{% url 'blog:post_list' %}?sort=popular">Most read</a>
+      <a href="{% url 'blog:post_list' %}?sort=discussed">Most discussed</a>
+    </div>
+
+    <div class="footer-col">
+      <h2>Topics</h2>
+      {% for category in nav_categories %}
+        <a href="{{ category.get_absolute_url }}">{{ category.name }}</a>
+      {% empty %}
+        <span class="muted">No topics yet</span>
+      {% endfor %}
+    </div>
+
+    <div class="footer-col">
+      <h2>Take part</h2>
+      <a href="{% url 'blog:contact' %}">Pitch an article</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'blog:reading_list' %}">Your reading list</a>
+      {% else %}
+        <a href="{% url 'accounts:signup' %}">Create an account</a>
+      {% endif %}
+      <a href="{% url 'blog:about' %}">About this blog</a>
+    </div>
+  </div>
+  <div class="shell footer-bottom">
+    <p>© {% now "Y" %} {{ site_name }}. Written by people who like the details.</p>
+    <p>Built with Django.</p>
+  </div>
+</footer>

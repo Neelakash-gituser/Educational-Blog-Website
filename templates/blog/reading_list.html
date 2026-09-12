@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Reading list — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="shell page-head">
+  <p class="eyebrow">Saved for later</p>
+  <h1>Your reading list</h1>
+  <p>Articles you bookmarked. They stay here until you remove them.</p>
+</section>
+
+<section class="shell" style="padding-bottom: 4rem">
+  {% if page_obj.object_list %}
+    <div class="post-grid">
+      {% for post in page_obj %}{% include "partials/post_card.html" %}{% endfor %}
+    </div>
+    {% include "partials/pagination.html" %}
+  {% else %}
+    <div class="empty-state">
+      <span class="glyph">🔖</span>
+      <h3>Nothing saved yet</h3>
+      <p>Hit “Save” on any article and it will show up here.</p>
+      <a class="button button-outline" href="{% url 'blog:post_list' %}">Browse articles</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load blog_extras humanize %}
+
+{% block title %}{{ site_name }} — {{ site_tagline }}{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="shell hero-inner">
+    <p class="eyebrow">{{ total_posts }} article{{ total_posts|pluralize }} · {{ categories|length }} topic{{ categories|length|pluralize }}</p>
+    <h1>Understand the <em>hard parts</em>, properly.</h1>
+    <p class="hero-lede">{{ site_tagline }} Long-form explainers with working code, worked examples and a comment section that is actually worth reading.</p>
+    <div class="hero-actions">
+      <a class="button button-primary button-lg" href="{% url 'blog:post_list' %}">Start reading</a>
+      <a class="button button-outline button-lg" href="{% url 'blog:topics' %}">Browse topics</a>
+    </div>
+  </div>
+</section>
+
+{% if featured %}
+<section class="shell section-tight">
+  <article class="featured" {% if featured.category %}style="--topic-color: {{ featured.category.color }}"{% endif %}>
+    <span class="featured-flag">{% if featured.is_featured %}Featured{% else %}Latest{% endif %}</span>
+    <div class="featured-media">
+      {% if featured.cover_image %}
+        <img src="{{ featured.cover_image.url }}" alt="">
+      {% else %}
+        <span class="featured-placeholder">{{ featured.category.icon|default:"✳" }}</span>
+      {% endif %}
+    </div>
+    <div class="featured-body">
+      <div class="meta-row">
+        {% if featured.category %}<a class="topic-badge" href="{{ featured.category.get_absolute_url }}">{{ featured.category.icon }} {{ featured.category.name }}</a>{% endif %}
+        <span>{{ featured.read_minutes }} min read</span>
+        <span class="meta-dot"></span>
+        <span>{{ featured.display_date|date:"j F Y" }}</span>
+      </div>
+      <h2><a href="{{ featured.get_absolute_url }}">{{ featured.title }}</a></h2>
+      <p>{{ featured.subtitle|default:featured.excerpt }}</p>
+      <div class="post-card-foot" style="border-top: 0; padding-top: 0">
+        {{ featured.author.profile|avatar_or_initials }}
+        <span><a href="{{ featured.author.profile.get_absolute_url }}">{{ featured.author.profile.name }}</a></span>
+        <span class="post-stats">
+          <span>💬 {{ featured.comment_total|default:0 }}</span>
+          <span>♥ {{ featured.like_total|default:0 }}</span>
+        </span>
+      </div>
+      <div>
+        <a class="button button-primary" href="{{ featured.get_absolute_url }}">Read the article →</a>
+      </div>
+    </div>
+  </article>
+</section>
+{% endif %}
+
+{% if latest_posts %}
+<section class="shell section">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">Fresh out</p>
+      <h2>Latest articles</h2>
+    </div>
+    <a class="button button-ghost button-sm" href="{% url 'blog:post_list' %}">All articles →</a>
+  </div>
+  <div class="post-grid">
+    {% for post in latest_posts %}{% include "partials/post_card.html" %}{% endfor %}
+  </div>
+</section>
+{% else %}
+<section class="shell section">
+  <div class="empty-state">
+    <span class="glyph">✍️</span>
+    <h3>No posts published yet</h3>
+    <p>Sign in as an author and write the first one — the dashboard has a Markdown editor with live preview.</p>
+    {% if user.profile.is_author %}
+      <a class="button button-primary" href="{% url 'blog:post_create' %}">Write the first post</a>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+
+{% if categories %}
+<section class="shell section-tight">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">Pick a lane</p>
+      <h2>Topics</h2>
+    </div>
+    <a class="button button-ghost button-sm" href="{% url 'blog:topics' %}">See all →</a>
+  </div>
+  <div class="topic-grid">
+    {% for category in categories %}
+      <a class="topic-card" href="{{ category.get_absolute_url }}" style="--topic-color: {{ category.color }}">
+        <span class="topic-card-icon">{{ category.icon }}</span>
+        <h3>{{ category.name }}</h3>
+        <p>{{ category.tagline|default:"" }}</p>
+        <span class="count">{{ category.total }} article{{ category.total|pluralize }}</span>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if most_read %}
+<section class="shell section">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">Reader favourites</p>
+      <h2>Most read</h2>
+    </div>
+  </div>
+  <div class="card" style="padding: 0.5rem 1.25rem">
+    {% for post in most_read %}
+      <div class="post-list-row">
+        <span class="post-list-index">{{ forloop.counter }}</span>
+        <div>
+          <h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+          <div class="meta-row" style="margin-top: 0.35rem">
+            {% if post.category %}<a href="{{ post.category.get_absolute_url }}">{{ post.category.name }}</a><span class="meta-dot"></span>{% endif %}
+            <span>{{ post.author.profile.name }}</span>
+            <span class="meta-dot"></span>
+            <span>{{ post.view_count|intcomma }} view{{ post.view_count|pluralize }}</span>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if tags %}
+<section class="shell section-tight">
+  <div class="section-head"><div><p class="eyebrow">Fine grained</p><h2>Tags</h2></div></div>
+  <div class="tag-cloud">
+    {% for tag in tags %}<a class="chip" href="{{ tag.get_absolute_url }}">#{{ tag.name }} <span class="muted">{{ tag.total }}</span></a>{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="shell section">
+  {% include "partials/subscribe.html" %}
+</section>
+{% endblock %}

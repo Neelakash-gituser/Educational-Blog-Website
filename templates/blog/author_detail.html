@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load blog_extras humanize %}
+
+{% block title %}{{ author_profile.name }} — {{ site_name }}{% endblock %}
+{% block meta_description %}{{ author_profile.headline|default:author_profile.bio|truncatechars:150 }}{% endblock %}
+
+{% block content %}
+<section class="shell page-head">
+  <div class="author-card" style="background: transparent; border: 0; padding: 0">
+    {{ author_profile|avatar_or_initials }}
+    <div>
+      <h1 style="font-size: var(--step-3)">{{ author_profile.name }}</h1>
+      {% if author_profile.headline %}<p class="muted">{{ author_profile.headline }}</p>{% endif %}
+      {% if author_profile.bio %}<p style="margin-top: 0.75rem; max-width: 42rem">{{ author_profile.bio }}</p>{% endif %}
+      <div class="author-links">
+        <span class="muted">{{ post_total }} article{{ post_total|pluralize }}</span>
+        {% if author_profile.location %}<span class="muted">📍 {{ author_profile.location }}</span>{% endif %}
+        {% if author_profile.website %}<a href="{{ author_profile.website }}" rel="noopener nofollow" target="_blank">Website</a>{% endif %}
+        {% if author_profile.github %}<a href="https://github.com/{{ author_profile.github }}" rel="noopener nofollow" target="_blank">GitHub</a>{% endif %}
+        {% if author_profile.twitter %}<a href="https://twitter.com/{{ author_profile.twitter }}" rel="noopener nofollow" target="_blank">X</a>{% endif %}
+        {% if author_profile.linkedin %}<a href="https://linkedin.com/in/{{ author_profile.linkedin }}" rel="noopener nofollow" target="_blank">LinkedIn</a>{% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="shell" style="padding-bottom: 4rem">
+  {% if page_obj.object_list %}
+    <div class="post-grid">
+      {% for post in page_obj %}{% include "partials/post_card.html" %}{% endfor %}
+    </div>
+    {% include "partials/pagination.html" %}
+  {% else %}
+    <div class="empty-state">
+      <span class="glyph">📄</span>
+      <h3>Nothing published yet</h3>
+      <p>{{ author_profile.name }} has not published an article so far.</p>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

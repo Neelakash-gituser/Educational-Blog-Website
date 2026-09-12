@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Author access needed — {{ site_name }}{% endblock %}
+{% block content %}
+<section class="shell error-page">
+  <p class="error-code">✍</p>
+  <h1>You need an author account for this</h1>
+  <p class="muted" style="max-width: 34rem">
+    Reading, commenting and bookmarking are open to everyone. Publishing articles needs writer
+    access — an editor can switch it on for your account.
+  </p>
+  <div class="hero-actions" style="justify-content: center">
+    <a class="button button-primary" href="{% url 'blog:contact' %}">Ask for writer access</a>
+    <a class="button button-outline" href="{% url 'blog:home' %}">Back home</a>
+  </div>
+</section>
+{% endblock %}

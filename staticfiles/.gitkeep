@@ -1,0 +1,2 @@
+# collectstatic writes here. Kept in git so whitenoise has a directory to serve
+# in development; the built files themselves are ignored.
