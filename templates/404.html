@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Page not found — {{ site_name }}{% endblock %}
+{% block content %}
+<section class="shell error-page">
+  <p class="error-code">404</p>
+  <h1>This page went missing</h1>
+  <p class="muted">The link may be old, or the article may have been renamed.</p>
+  <div class="hero-actions" style="justify-content: center">
+    <a class="button button-primary" href="{% url 'blog:home' %}">Back home</a>
+    <a class="button button-outline" href="{% url 'blog:post_list' %}">All articles</a>
+  </div>
+</section>
+{% endblock %}

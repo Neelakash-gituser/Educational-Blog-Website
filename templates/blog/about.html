@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load blog_extras %}
+
+{% block title %}About — {{ site_name }}{% endblock %}
+{% block meta_description %}What {{ site_name }} is, who writes it, and how to contribute.{% endblock %}
+
+{% block content %}
+<section class="shell page-head">
+  <p class="eyebrow">About</p>
+  <h1>Why this blog exists</h1>
+</section>
+
+<section class="shell article-layout" style="padding-bottom: 3rem">
+  <div class="article-body">
+    <div class="prose">
+      <p>{{ site_description }}</p>
+      <p>
+        Most explanations stop exactly where things get interesting. The goal here is the opposite:
+        start from something you already know, go all the way down to the detail that actually
+        matters, and show the working — derivations, runnable code, and the wrong turns worth
+        knowing about.
+      </p>
+
+      <h2>How articles are written</h2>
+      <p>
+        Everything is written in Markdown, so a post can mix prose, mathematics, tables and
+        syntax-highlighted code without fighting a word processor:
+      </p>
+      <div class="codehilite"><pre><code class="language-python">def binary_search(items, target):
+    lo, hi = 0, len(items) - 1
+    while lo &lt;= hi:
+        mid = (lo + hi) // 2
+        if items[mid] == target:
+            return mid
+        if items[mid] &lt; target:
+            lo = mid + 1
+        else:
+            hi = mid - 1
+    return -1
+</code></pre></div>
+      <p>Every code block gets a language label and a copy button, in light and dark themes alike.</p>
+
+      <h2>Join in</h2>
+      <p>
+        Comments are open to anyone with an account. Corrections are welcome and get credited —
+        a good comment thread is often better than the article it hangs off.
+      </p>
+      <p>
+        Want to write here? <a href="{% url 'blog:contact' %}">Pitch an article</a> with a rough
+        outline. Contributors get an author account and access to the editor.
+      </p>
+    </div>
+  </div>
+</section>
+
+{% if authors %}
+<section class="shell section-tight" style="padding-bottom: 4rem">
+  <div class="section-head"><div><p class="eyebrow">The people writing</p><h2>Contributors</h2></div></div>
+  <div class="topic-grid">
+    {% for contributor in authors %}
+      <a class="topic-card" href="{{ contributor.profile.get_absolute_url }}">
+        {{ contributor.profile|avatar_or_initials }}
+        <h3 style="font-size: var(--step-0)">{{ contributor.profile.name }}</h3>
+        <p>{{ contributor.profile.headline|default:"Contributor" }}</p>
+        <span class="count">{{ contributor.published }} article{{ contributor.published|pluralize }}</span>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="shell" style="padding-bottom: 4rem">{% include "partials/subscribe.html" %}</section>
+{% endblock %}

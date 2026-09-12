@@ -1,0 +1,22 @@
+{% load blog_extras %}
+<form class="filter-bar" method="get" action="">
+  <div class="filter-search">
+    <input type="search" name="q" value="{{ query }}" placeholder="Search these articles…" aria-label="Search">
+    <button type="submit" class="button button-outline button-sm">Search</button>
+  </div>
+  {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+  <div class="sort-row" role="group" aria-label="Sort">
+    {% for key, option in sort_options.items %}
+      <a class="chip {% if sort == key %}is-active{% endif %}" href="{% query_replace sort=key %}">{{ option.1 }}</a>
+    {% endfor %}
+  </div>
+</form>
+
+{% if categories %}
+  <div class="chip-row" style="margin-bottom: 1.75rem">
+    <a class="chip {% if not active_category %}is-active{% endif %}" href="{% url 'blog:post_list' %}{% if query %}?q={{ query|urlencode_value }}{% endif %}">All topics</a>
+    {% for category in categories %}
+      <a class="chip {% if active_category == category %}is-active{% endif %}" href="{{ category.get_absolute_url }}">{{ category.icon }} {{ category.name }}</a>
+    {% endfor %}
+  </div>
+{% endif %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Contact — {{ site_name }}{% endblock %}
+{% block meta_description %}Get in touch with {{ site_name }} — questions, corrections and article pitches.{% endblock %}
+
+{% block content %}
+<section class="shell page-head">
+  <p class="eyebrow">Say hello</p>
+  <h1>Contact</h1>
+  <p>Questions, corrections, or an article you want to write — this reaches the editors directly.</p>
+</section>
+
+<section class="shell" style="padding-bottom: 4rem; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 2rem; align-items: start">
+  <form class="card form-grid" method="post" style="padding: 1.5rem">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<ul class="nonfield-errors">{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+    <div class="form-row">
+      <div class="field">
+        <label for="{{ form.name.id_for_label }}">Name</label>
+        {{ form.name }}
+        {{ form.name.errors }}
+      </div>
+      <div class="field">
+        <label for="{{ form.email.id_for_label }}">Email</label>
+        {{ form.email }}
+        {{ form.email.errors }}
+      </div>
+    </div>
+    <div class="field">
+      <label for="{{ form.subject.id_for_label }}">Subject</label>
+      {{ form.subject }}
+      {{ form.subject.errors }}
+    </div>
+    <div class="field">
+      <label for="{{ form.message.id_for_label }}">Message</label>
+      {{ form.message }}
+      {{ form.message.errors }}
+    </div>
+    {{ form.honeypot }}
+    <div class="form-actions">
+      <button type="submit" class="button button-primary">Send message</button>
+      <span class="muted" style="font-size: 0.82rem">Usually answered within a couple of days.</span>
+    </div>
+  </form>
+
+  <aside class="stack" style="--stack-gap: 1rem">
+    <div class="card" style="padding: 1.25rem">
+      <h2 style="font-size: var(--step-1)">Pitching an article</h2>
+      <p class="muted" style="font-size: 0.92rem; margin-top: 0.5rem">
+        Send a one-paragraph outline: what the piece explains, who it is for, and why the existing
+        explanations are not good enough. Working code or a worked example helps.
+      </p>
+    </div>
+    <div class="card" style="padding: 1.25rem">
+      <h2 style="font-size: var(--step-1)">Found a mistake?</h2>
+      <p class="muted" style="font-size: 0.92rem; margin-top: 0.5rem">
+        Comment on the article itself — corrections in public are more useful than corrections in
+        private, and they get credited.
+      </p>
+    </div>
+  </aside>
+</section>
+{% endblock %}

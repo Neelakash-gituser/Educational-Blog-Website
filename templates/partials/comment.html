@@ -1,0 +1,71 @@
+{% load blog_extras %}
+<article class="comment {% if not comment.is_approved %}comment-pending{% endif %}" id="comment-{{ comment.pk }}">
+  {{ comment.author.profile|avatar_or_initials }}
+  <div class="comment-main">
+    <div class="comment-head">
+      <span class="comment-author"><a href="{{ comment.author.profile.get_absolute_url }}">{{ comment.author.profile.name }}</a></span>
+      {% if comment.author_id == post.author_id %}<span class="comment-badge">Author</span>{% endif %}
+      {% if comment.author.is_staff %}<span class="comment-badge">Editor</span>{% endif %}
+      <span class="muted">{{ comment.created_at|timesince }} ago{% if comment.is_edited %} · edited{% endif %}</span>
+      {% if not comment.is_approved %}<span class="muted">· awaiting approval</span>{% endif %}
+    </div>
+
+    <div class="comment-body" id="comment-body-{{ comment.pk }}">{{ comment.body_html|safe }}</div>
+
+    {% if user == comment.author %}
+      <form class="comment-form" id="comment-edit-{{ comment.pk }}" action="{% url 'blog:comment_edit' comment.pk %}" method="post" hidden>
+        {% csrf_token %}
+        <textarea name="body" rows="4">{{ comment.body }}</textarea>
+        <div class="comment-form-foot">
+          <button type="submit" class="button button-primary button-sm">Save</button>
+          <button type="button" class="button button-ghost button-sm" data-edit-toggle="comment-edit-{{ comment.pk }}" data-edit-body="comment-body-{{ comment.pk }}">Cancel</button>
+        </div>
+      </form>
+    {% endif %}
+
+    <div class="comment-tools">
+      {% if user.is_authenticated %}
+        <form action="{% url 'blog:comment_like' comment.pk %}" method="post" data-async style="display: inline">
+          {% csrf_token %}
+          <button type="submit" class="comment-tool {% if user in comment.likes.all %}is-on{% endif %}">♥ <span data-count>{{ comment.likes.count }}</span></button>
+        </form>
+        {% if not comment.parent_id %}
+          <button type="button" class="comment-tool" data-reply-toggle="reply-{{ comment.pk }}">↩ Reply</button>
+        {% endif %}
+        {% if user == comment.author %}
+          <button type="button" class="comment-tool" data-edit-toggle="comment-edit-{{ comment.pk }}" data-edit-body="comment-body-{{ comment.pk }}">Edit</button>
+        {% endif %}
+        {% if user == comment.author or user.is_staff %}
+          <form action="{% url 'blog:comment_delete' comment.pk %}" method="post" data-confirm="Delete this comment?" style="display: inline">
+            {% csrf_token %}
+            <button type="submit" class="comment-tool">Delete</button>
+          </form>
+        {% endif %}
+      {% else %}
+        <span class="comment-tool">♥ {{ comment.likes.count }}</span>
+      {% endif %}
+    </div>
+
+    {% if user.is_authenticated and not comment.parent_id %}
+      <form class="comment-form reply-box" id="reply-{{ comment.pk }}" action="{% url 'blog:comment_create' post.slug %}" method="post" hidden>
+        {% csrf_token %}
+        <input type="hidden" name="parent" value="{{ comment.pk }}">
+        <textarea name="body" rows="3" placeholder="Reply to {{ comment.author.profile.name }}…"></textarea>
+        <div class="comment-form-foot">
+          <button type="submit" class="button button-primary button-sm">Reply</button>
+          <button type="button" class="button button-ghost button-sm" data-reply-toggle="reply-{{ comment.pk }}">Cancel</button>
+        </div>
+      </form>
+    {% endif %}
+
+    {% with replies=comment.visible_replies %}
+      {% if replies %}
+        <div class="comment-replies">
+          {% for reply in replies %}
+            {% include "partials/comment.html" with comment=reply %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+</article>

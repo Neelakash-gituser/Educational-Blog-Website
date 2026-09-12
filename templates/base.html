@@ -1,0 +1,53 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en" data-theme="{{ request.COOKIES.theme|default:'' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ site_name }}{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}{{ site_description }}{% endblock %}">
+  <link rel="canonical" href="{{ request.build_absolute_uri }}">
+
+  <meta property="og:site_name" content="{{ site_name }}">
+  <meta property="og:title" content="{% block og_title %}{{ site_name }}{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}{{ site_description }}{% endblock %}">
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:url" content="{{ request.build_absolute_uri }}">
+  {% block og_image %}{% endblock %}
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="alternate" type="application/rss+xml" title="{{ site_name }} — RSS" href="{% url 'post_feed' %}">
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/code.css' %}">
+  {% block extra_head %}{% endblock %}
+  <script>
+    // Applied before first paint so the correct theme is never repainted.
+    (function () {
+      try {
+        var stored = localStorage.getItem('theme');
+        if (stored) document.documentElement.dataset.theme = stored;
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a class="skip-link" href="#main">Skip to content</a>
+  {% include "partials/header.html" %}
+
+  {% block progress %}{% endblock %}
+
+  <main id="main">
+    {% include "partials/messages.html" %}
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "partials/footer.html" %}
+  <script src="{% static 'js/main.js' %}" defer></script>
+  {% block extra_body %}{% endblock %}
+  {% block math %}{% endblock %}
+</body>
+</html>

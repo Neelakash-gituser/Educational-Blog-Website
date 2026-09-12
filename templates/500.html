@@ -1,0 +1,50 @@
+{# Standalone on purpose: a 500 can mean the database is unreachable, so this
+   template must not touch context processors, template tags or the ORM. #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Something broke</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 2rem 1.5rem;
+      background: #f7f9fb;
+      color: #0f1115;
+      font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .code { font-size: clamp(4rem, 18vw, 9rem); line-height: 1; color: #4f46e5; font-weight: 600; margin: 0; }
+    h1 { font-size: 1.6rem; margin: 0.5rem 0; font-weight: 600; }
+    p.lede { color: #6b7480; margin: 0 0 1.5rem; }
+    a {
+      display: inline-block;
+      padding: 0.65rem 1.25rem;
+      border-radius: 999px;
+      background: #4f46e5;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #0c0d11; color: #f2f4f8; }
+      .code { color: #8b8bfb; }
+      p.lede { color: #969ead; }
+      a { background: #8b8bfb; color: #0c0d11; }
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <p class="code">500</p>
+    <h1>Something broke on our side</h1>
+    <p class="lede">The error has been logged. Try again in a moment.</p>
+    <a href="/">Back home</a>
+  </div>
+</body>
+</html>

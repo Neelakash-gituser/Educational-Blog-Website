@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}{{ heading }} — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="shell page-head">
+  <div class="page-head-row">
+    <div>
+      <p class="eyebrow">Editor</p>
+      <h1>{{ heading }}</h1>
+      <p data-word-count class="muted">Markdown, with live preview on the right.</p>
+    </div>
+    <div class="hero-actions">
+      {% if post %}<a class="button button-outline" href="{{ post.get_absolute_url }}">View post</a>{% endif %}
+      <a class="button button-ghost" href="{% url 'blog:dashboard' %}">Back to dashboard</a>
+    </div>
+  </div>
+</section>
+
+<form method="post" enctype="multipart/form-data" class="shell" style="padding-bottom: 4rem">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<ul class="nonfield-errors">{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+
+  <div class="editor-layout">
+    <div class="editor-pane form-grid">
+      <div class="field">
+        <label for="{{ form.title.id_for_label }}">Title</label>
+        {{ form.title }}{{ form.title.errors }}
+      </div>
+      <div class="field">
+        <label for="{{ form.subtitle.id_for_label }}">Standfirst</label>
+        {{ form.subtitle }}{{ form.subtitle.errors }}
+      </div>
+
+      <div class="field">
+        <label for="{{ form.content.id_for_label }}">Body</label>
+        <div class="editor-toolbar">
+          <button type="button" data-md="## |" data-placeholder="Heading" title="Heading">H2</button>
+          <button type="button" data-md="**|**" data-placeholder="bold" title="Bold">B</button>
+          <button type="button" data-md="*|*" data-placeholder="italic" title="Italic"><i>I</i></button>
+          <button type="button" data-md="[|](https://)" data-placeholder="link text" title="Link">link</button>
+          <button type="button" data-md="`|`" data-placeholder="code" title="Inline code">`code`</button>
+          <button type="button" data-md="&#10;```python&#10;|&#10;```&#10;" data-placeholder="print('hello')" title="Code block">```</button>
+          <button type="button" data-md="&#10;> |" data-placeholder="quote" title="Quote">&gt;</button>
+          <button type="button" data-md="&#10;- |" data-placeholder="item" title="List">•</button>
+          <button type="button" data-md="&#10;| a | b |&#10;| --- | --- |&#10;| 1 | 2 |&#10;" title="Table">table</button>
+          <button type="button" data-md="&#10;!!! note&#10;    |&#10;" data-placeholder="Something worth boxing out" title="Callout">note</button>
+        </div>
+        <textarea name="{{ form.content.html_name }}" id="{{ form.content.id_for_label }}" class="markdown-editor"
+                  rows="26" spellcheck="true" data-editor data-preview-url="{% url 'blog:markdown_preview' %}"
+                  placeholder="Write in Markdown. Fence code blocks with ``` and a language name.">{{ form.content.value|default:"" }}</textarea>
+        {{ form.content.errors }}
+        <p class="helptext">Headings become the table of contents. Fenced blocks get syntax highlighting and a copy button.</p>
+      </div>
+    </div>
+
+    <div class="editor-sidebar">
+      <div class="preview-pane">
+        <div class="preview-head"><span>Live preview</span></div>
+        <div class="prose preview-body" data-preview><p class="muted">Start typing…</p></div>
+      </div>
+
+      <div class="editor-pane form-grid">
+        <div class="field">
+          <label for="{{ form.category.id_for_label }}">Topic</label>
+          {{ form.category }}{{ form.category.errors }}
+        </div>
+        <div class="field">
+          <label for="{{ form.tags_text.id_for_label }}">Tags</label>
+          {{ form.tags_text }}
+          <p class="helptext">{{ form.tags_text.help_text }}</p>
+          {{ form.tags_text.errors }}
+        </div>
+        <div class="field">
+          <label for="{{ form.excerpt.id_for_label }}">Excerpt</label>
+          {{ form.excerpt }}
+          <p class="helptext">{{ form.excerpt.help_text }}</p>
+          {{ form.excerpt.errors }}
+        </div>
+        <div class="field">
+          <label for="{{ form.cover_image.id_for_label }}">Cover image</label>
+          {{ form.cover_image }}{{ form.cover_image.errors }}
+        </div>
+        <div class="field">
+          <label for="{{ form.cover_caption.id_for_label }}">Cover caption</label>
+          {{ form.cover_caption }}{{ form.cover_caption.errors }}
+        </div>
+        <div class="field">
+          <label for="{{ form.status.id_for_label }}">Status</label>
+          {{ form.status }}{{ form.status.errors }}
+        </div>
+        <div class="field-check">
+          {{ form.allow_comments }}
+          <label for="{{ form.allow_comments.id_for_label }}">Allow comments</label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="button button-primary">{{ submit_label }}</button>
+        </div>
+      </div>
+
+      <div class="editor-pane">
+        <p class="preview-head">Markdown cheat sheet</p>
+        <div class="cheatsheet">
+          <span><code>## Heading</code> — section (shows in the table of contents)</span>
+          <span><code>**bold**</code> · <code>*italic*</code> · <code>`code`</code></span>
+          <span><code>```python … ```</code> — highlighted code block</span>
+          <span><code>&gt; quote</code> · <code>- list</code> · <code>1. list</code></span>
+          <span><code>[text](url)</code> · <code>![alt](image-url)</code></span>
+          <span><code>| a | b |</code> — tables</span>
+          <span><code>!!! note</code> + indented text — callout box</span>
+          <span><code>- [x] done</code> — task list</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block math %}{% include "partials/mathjax.html" %}{% endblock %}

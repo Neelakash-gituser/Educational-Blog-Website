@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Sign in — {{ site_name }}{% endblock %}
+{% block content %}
+<section class="shell">
+  <div class="auth-shell">
+    <h1>Welcome back</h1>
+    <p class="auth-sub">Sign in to comment, save articles and write.</p>
+    <form method="post" class="form-grid">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<ul class="nonfield-errors">{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+      <div class="field">
+        <label for="{{ form.username.id_for_label }}">Username</label>
+        {{ form.username }}{{ form.username.errors }}
+      </div>
+      <div class="field">
+        <label for="{{ form.password.id_for_label }}">Password</label>
+        {{ form.password }}{{ form.password.errors }}
+      </div>
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit" class="button button-primary button-lg">Sign in</button>
+    </form>
+    <p class="auth-alt">New here? <a href="{% url 'accounts:signup' %}">Create an account</a></p>
+  </div>
+</section>
+{% endblock %}

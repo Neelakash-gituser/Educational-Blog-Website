@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load blog_extras humanize %}
+
+{% block title %}Your posts — {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="shell page-head">
+  <div class="page-head-row">
+    <div>
+      <p class="eyebrow">Dashboard</p>
+      <h1>Your posts</h1>
+      <p>Drafts are private until you publish them.</p>
+    </div>
+    <a class="button button-primary button-lg" href="{% url 'blog:post_create' %}">✍ Write a post</a>
+  </div>
+</section>
+
+<section class="shell" style="padding-bottom: 1.5rem">
+  <div class="stat-grid">
+    <div class="stat"><b>{{ counts.published }}</b><span>Published</span></div>
+    <div class="stat"><b>{{ counts.draft }}</b><span>Draft{{ counts.draft|pluralize }}</span></div>
+    <div class="stat"><b>{{ totals.views|intcomma }}</b><span>Total views</span></div>
+    <div class="stat"><b>{{ totals.comments }}</b><span>Comments received</span></div>
+    <div class="stat"><b>{{ totals.likes }}</b><span>Likes</span></div>
+  </div>
+</section>
+
+{% if pending_comments %}
+<section class="shell section-tight">
+  <div class="section-head"><div><p class="eyebrow">Needs you</p><h2>Comments awaiting approval</h2></div></div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <tbody>
+        {% for comment in pending_comments %}
+          <tr>
+            <td>
+              <p class="title-cell">{{ comment.author.profile.name }} on <a href="{{ comment.post.get_absolute_url }}">{{ comment.post.title }}</a></p>
+              <p class="muted" style="font-size: 0.85rem">{{ comment.body|truncatechars:140 }}</p>
+            </td>
+            <td>
+              <div class="row-actions">
+                <form action="{% url 'blog:comment_moderate' comment.pk %}" method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="approve">
+                  <button class="button button-outline button-sm" type="submit">Approve</button>
+                </form>
+                <form action="{% url 'blog:comment_moderate' comment.pk %}" method="post" data-confirm="Delete this comment?">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="delete">
+                  <button class="button button-danger button-sm" type="submit">Delete</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+
+<section class="shell section-tight" style="padding-bottom: 4rem">
+  <div class="chip-row" style="margin-bottom: 1.25rem">
+    <a class="chip {% if status == 'all' %}is-active{% endif %}" href="{% url 'blog:dashboard' %}">All {{ counts.all }}</a>
+    <a class="chip {% if status == 'published' %}is-active{% endif %}" href="?status=published">Published {{ counts.published }}</a>
+    <a class="chip {% if status == 'draft' %}is-active{% endif %}" href="?status=draft">Drafts {{ counts.draft }}</a>
+  </div>
+
+  {% if page_obj.object_list %}
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Title</th><th>Topic</th><th>Status</th><th>Updated</th>
+            <th>Views</th><th>Comments</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for post in page_obj %}
+            <tr>
+              <td class="title-cell"><a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                <p class="muted" style="font-size: 0.8rem">{{ post.read_minutes }} min · {{ post.words|intcomma }} words</p>
+              </td>
+              <td>{% if post.category %}<span class="topic-badge" style="--topic-color: {{ post.category.color }}">{{ post.category.name }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+              <td><span class="status-pill status-{{ post.status }}">{{ post.get_status_display }}</span></td>
+              <td class="muted">{{ post.updated_at|date:"j M Y" }}</td>
+              <td>{{ post.view_count|intcomma }}</td>
+              <td>{{ post.comment_total }}</td>
+              <td>
+                <div class="row-actions">
+                  <a class="button button-outline button-sm" href="{% url 'blog:post_edit' post.slug %}">Edit</a>
+                  <form action="{% url 'blog:post_delete' post.slug %}" method="post" data-confirm="Delete “{{ post.title|escapejs }}” permanently?">
+                    {% csrf_token %}
+                    <button type="submit" class="button button-danger button-sm">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include "partials/pagination.html" %}
+  {% else %}
+    <div class="empty-state">
+      <span class="glyph">📝</span>
+      <h3>No posts here</h3>
+      <p>Start a draft — you can leave it unpublished as long as you like.</p>
+      <a class="button button-primary" href="{% url 'blog:post_create' %}">Write a post</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
