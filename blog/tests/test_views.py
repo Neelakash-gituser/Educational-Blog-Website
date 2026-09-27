@@ -524,3 +524,39 @@ class ErrorPageTests(TestCase):
         response = server_error(None)
         self.assertEqual(response.status_code, 500)
         self.assertIn(b"Something broke", response.content)
+
+
+class ManagementCommandTests(TestCase):
+    def test_backup_writes_a_loadable_fixture(self):
+        import json
+        import tempfile
+        from pathlib import Path
+
+        from django.core.management import call_command
+
+        author = make_user("author", writer=True)
+        make_post(author, title="Backed up", category=make_category("Physics"))
+
+        with tempfile.TemporaryDirectory() as tmp:
+            target = Path(tmp) / "snapshot.json"
+            call_command("backup", output=str(target), verbosity=0)
+            records = json.loads(target.read_text())
+
+        models = {record["model"] for record in records}
+        self.assertIn("blog.post", models)
+        self.assertIn("accounts.profile", models)
+        # contenttypes and permissions would collide with a fresh migrate
+        self.assertNotIn("contenttypes.contenttype", models)
+        self.assertNotIn("auth.permission", models)
+
+    def test_seed_demo_is_idempotent(self):
+        from django.core.management import call_command
+
+        make_user("boss", staff=True).__class__.objects.filter(username="boss").update(
+            is_superuser=True
+        )
+        call_command("seed_demo", verbosity=0)
+        first = Post.objects.count()
+        call_command("seed_demo", verbosity=0)
+        self.assertEqual(Post.objects.count(), first)
+        self.assertGreater(first, 0)

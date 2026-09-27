@@ -8,9 +8,12 @@ env/
 
 # Django
 *.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
 !legacy/db.sqlite3
 staticfiles/*
 !staticfiles/.gitkeep
+backups/
 media/
 .env
 

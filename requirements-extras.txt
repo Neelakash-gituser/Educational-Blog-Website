@@ -1,0 +1,9 @@
+# Only needed on hosts with a Postgres database or Cloudinary media storage.
+# Skip this file on PythonAnywhere or any SQLite deployment — it is ~40 MB of
+# wheels you would not use.
+-r requirements.txt
+
+psycopg[binary]==3.2.12
+
+django-cloudinary-storage==0.3.0
+cloudinary==1.46.2

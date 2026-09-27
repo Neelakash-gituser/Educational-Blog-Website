@@ -111,6 +111,20 @@ DATABASES = {
     )
 }
 
+if "sqlite" in DATABASES["default"]["ENGINE"]:
+    # SQLite is a real option for a blog on a single worker (PythonAnywhere,
+    # a small VPS), but it needs different settings from a network database:
+    # WAL so readers never block on the writer, a busy timeout instead of an
+    # instant "database is locked", and no persistent connections.
+    DATABASES["default"]["CONN_MAX_AGE"] = 0
+    DATABASES["default"].setdefault("OPTIONS", {}).update(
+        {
+            "timeout": 20,
+            "transaction_mode": "IMMEDIATE",
+            "init_command": "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;",
+        }
+    )
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 

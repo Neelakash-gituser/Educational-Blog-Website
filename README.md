@@ -48,7 +48,7 @@ content (see [Importing the old site](#importing-the-old-site)).
   `javascript:` URLs, from posts or comments
 - Contact form with a honeypot, newsletter signups, admin actions for bulk publishing
   and comment approval
-- 96 tests covering models, the Markdown pipeline, permissions and every page
+- 98 tests covering models, the Markdown pipeline, permissions and every page
 - Production settings driven entirely by environment variables; HSTS, secure cookies and
   SSL redirect switch on automatically when `DEBUG=False`
 
@@ -63,7 +63,7 @@ git clone https://github.com/Neelakash-gituser/Educational-Blog-Website.git
 cd Educational-Blog-Website
 
 python -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements.txt                       # add -r requirements-extras.txt for Postgres/Cloudinary
 
 cp .env.example .env                                  # then edit SECRET_KEY at least
 
@@ -143,13 +143,15 @@ blog/               posts, comments, topics, tags, contact, subscribers
     seed_demo.py        demo topics + articles
     import_legacy.py    import the original SQLite database
     make_code_css.py    regenerate the Pygments stylesheet
-  tests/            96 tests
+    backup.py           snapshot all content to backups/
+  tests/            98 tests
 accounts/           profiles, signup/login, settings
 templates/          base + partials + page templates
 static/css/main.css design system (tokens → primitives → components)
 static/css/code.css generated: code chrome + Pygments tokens, both themes
 static/js/main.js   progressive enhancement only; the site works without JS
 legacy/             the original database, kept for the importer
+deploy/             PythonAnywhere setup script and WSGI template
 ```
 
 ### Changing the look
@@ -196,14 +198,26 @@ in **[DEPLOY.md](DEPLOY.md)**. In short:
 
 | Host | Free tier | Files used |
 | --- | --- | --- |
-| **Render** (recommended) | Web service + Postgres, sleeps when idle | `render.yaml`, `build.sh` |
-| **Fly.io** | Small always-on VM | `Dockerfile`, `fly.toml` |
+| **PythonAnywhere** (recommended) | One web app that never sleeps, SQLite, no card needed | `deploy/pythonanywhere_setup.sh`, `deploy/pythonanywhere_wsgi.py` |
+| **Render** | Web service + Postgres, but it sleeps when idle and the free database expires after 30 days | `render.yaml`, `build.sh` |
+| **Fly.io** | Small always-on VM, card required | `Dockerfile`, `fly.toml` |
 | **Railway / Koyeb / Cloud Run** | Varies | `Dockerfile` or `Procfile` |
-| **PythonAnywhere** | One always-on web app, SQLite | manual setup |
 
-Static files are served by WhiteNoise, so no separate CDN or nginx is needed. Free tiers
-have ephemeral disks, so set `CLOUDINARY_URL` if you upload cover images — otherwise they
-vanish on redeploy.
+On PythonAnywhere the whole deploy is one script:
+
+```bash
+git clone https://github.com/Neelakash-gituser/Educational-Blog-Website.git
+cd Educational-Blog-Website
+bash deploy/pythonanywhere_setup.sh     # venv, deps, .env with a fresh key, migrate, static
+python manage.py createsuperuser
+```
+
+then point the Web tab at the project and reload — [DEPLOY.md](DEPLOY.md) has the exact
+field values.
+
+Static files are served by WhiteNoise, so no separate CDN or nginx is needed. Container
+hosts have ephemeral disks, so set `CLOUDINARY_URL` there if you upload cover images —
+on PythonAnywhere the disk is real and uploads simply stay put.
 
 ---
 
@@ -223,10 +237,23 @@ already imported.
 
 ---
 
+## Backups
+
+```bash
+python manage.py backup
+```
+
+Writes `backups/insight-<timestamp>.json` — every post, comment, topic, tag and account —
+and keeps the ten most recent. Restore with `python manage.py loaddata <file>` into a
+migrated database. Uploaded images are files rather than rows, so copy `media/` too.
+Worth doing regularly if the site runs on SQLite.
+
+---
+
 ## Tests
 
 ```bash
-python manage.py test               # 96 tests
+python manage.py test               # 98 tests
 python manage.py test blog.tests.test_markdown -v 2
 ```
 

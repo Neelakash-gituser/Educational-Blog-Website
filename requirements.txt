@@ -1,6 +1,10 @@
+# Everything the site needs to run: SQLite database, local media.
+# Hosts that need Postgres or Cloudinary also install requirements-extras.txt.
+
 # Core
 Django==5.2.17
 python-dotenv==1.2.3
+dj-database-url==3.1.2
 
 # Markdown pipeline: fenced code + syntax highlighting + maths, sanitised
 Markdown==3.10.3
@@ -11,12 +15,6 @@ bleach==6.4.0
 # Images (cover images, avatars)
 pillow==12.3.0
 
-# Deployment
+# Serving
 gunicorn==26.2.0
 whitenoise==6.12.0
-dj-database-url==3.1.2
-psycopg[binary]==3.2.12
-
-# Optional: set CLOUDINARY_URL to keep uploads off an ephemeral disk
-django-cloudinary-storage==0.3.0
-cloudinary==1.46.2

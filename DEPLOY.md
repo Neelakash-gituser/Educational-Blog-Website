@@ -1,195 +1,185 @@
-# Deploying for free
+# Deploying
 
-Four options, cheapest effort first. Every one of them runs the same code — the only
-difference is which of the config files in this repo the platform reads.
-
-Whichever you pick, you need three things: a **secret key**, a **database**, and somewhere
-for **uploaded images** to live.
+The blog is a normal Django app: any host that runs Python and can serve a WSGI
+application will do. **PythonAnywhere** is documented first because it is the option
+that stays free without a payment card, without sleeping, and without a database that
+expires. The other hosts are covered further down.
 
 ---
 
-## Option 1 — Render (recommended)
+## PythonAnywhere (free, no card)
 
-Free web service plus a free Postgres database, configured by `render.yaml` and `build.sh`.
-The free web service sleeps after 15 minutes of inactivity and takes ~30 seconds to wake.
+### What the free tier gives you, honestly
+
+| | |
+| --- | --- |
+| Address | `https://<username>.pythonanywhere.com` (HTTPS included) |
+| Web app | One, and it does **not** sleep between visits |
+| Database | SQLite — MySQL moved to the paid tier for new free accounts in January 2026 |
+| Python | 3.11, 3.12 or 3.13 on accounts created after March 2025, with no preinstalled packages, so you make a virtualenv |
+| Renewal | You click a button to keep the web app alive; an **unused** app now expires after about a month, so a visit from you every few weeks is enough |
+| Support | Community forums only on free accounts since January 2026 |
+| Outbound internet | Restricted, so the contact form cannot send email. Messages are still saved and readable in the admin — nothing is lost, you just read them there |
+
+SQLite on a single always-on worker is genuinely fine for a blog: the app switches it into
+WAL mode automatically, so readers never block on you publishing. Take backups (see
+[Backups](#backups)), because the data lives on that one disk.
 
 ### Steps
 
-1. Push this repository to GitHub.
-2. Sign up at [render.com](https://render.com) and connect your GitHub account.
-3. **New → Blueprint**, pick this repository. Render reads `render.yaml` and proposes a web
-   service plus a Postgres database. Click **Apply**.
-4. Wait for the first build. `build.sh` installs dependencies, runs `collectstatic` and
-   applies migrations.
-5. Create your login. In the service's **Shell** tab:
+**1. Sign up** at [pythonanywhere.com](https://www.pythonanywhere.com) and choose the free
+"Beginner" account.
 
-   ```bash
-   python manage.py createsuperuser
-   python manage.py seed_demo        # optional: demo topics and articles
-   ```
+**2. Open a Bash console** (Consoles → Bash) and run:
 
-6. Open the URL Render assigned you (`https://insight-blog.onrender.com` or similar).
+```bash
+git clone https://github.com/Neelakash-gituser/Educational-Blog-Website.git
+cd Educational-Blog-Website
+git checkout claude/django-blog-redesign-ezgs90     # skip if you merged it into master
+bash deploy/pythonanywhere_setup.sh
+```
 
-`render.yaml` already sets `DEBUG=False`, generates `SECRET_KEY`, wires `DATABASE_URL` to
-the free database and sets `DATABASE_SSL_REQUIRE=True`. `RENDER_EXTERNAL_HOSTNAME` is
-provided by Render and picked up automatically for `ALLOWED_HOSTS` and
-`CSRF_TRUSTED_ORIGINS`, so there is nothing to fill in by hand.
+That script makes a virtualenv, installs `requirements.txt` (core only — it deliberately
+skips the Postgres and Cloudinary packages you do not need here), writes a `.env` with a
+freshly generated `SECRET_KEY`, runs migrations and collects static files. It prints the
+exact paths you need for the next step, so keep the console open.
 
-### Doing it without the blueprint
+**3. Create your login, and optionally some content:**
 
-If you would rather click through it: **New → Web Service**, connect the repo, then set
+```bash
+python manage.py createsuperuser
+python manage.py seed_demo        # demo topics + five example articles
+python manage.py import_legacy    # content from the original site
+```
 
-- Build command: `./build.sh`
-- Start command: `gunicorn config.wsgi:application`
-- Environment: `SECRET_KEY` (any 50 random characters), `DEBUG=False`,
-  `DATABASE_URL` (from a separately created Postgres instance),
-  `DATABASE_SSL_REQUIRE=True`
+**4. Configure the web app.** Go to the **Web** tab → **Add a new web app** →
+**Manual configuration** (*not* the "Django" option — that scaffolds a new project over
+yours) → the same Python version you used above. Then fill in:
 
-### Custom domain
+| Field | Value |
+| --- | --- |
+| Source code | `/home/<username>/Educational-Blog-Website` |
+| Working directory | `/home/<username>/Educational-Blog-Website` |
+| Virtualenv | `/home/<username>/.virtualenvs/insight` |
 
-Add it under **Settings → Custom Domains**, then add the hostname to `ALLOWED_HOSTS` and
-`CSRF_TRUSTED_ORIGINS`, and set `SITE_URL=https://yourdomain.com`.
+**5. Set the WSGI file.** Click the WSGI configuration file link on that page, delete
+everything in it, and paste the contents of [`deploy/pythonanywhere_wsgi.py`](deploy/pythonanywhere_wsgi.py),
+changing `USERNAME` to your username. Save.
+
+**6. Map the static files** in the **Static files** section of the Web tab:
+
+| URL | Directory |
+| --- | --- |
+| `/static/` | `/home/<username>/Educational-Blog-Website/staticfiles` |
+| `/media/` | `/home/<username>/Educational-Blog-Website/media` |
+
+**7. Tick "Force HTTPS"**, then press the big green **Reload** button.
+
+Your blog is at `https://<username>.pythonanywhere.com`. The admin is at `/admin/`, and
+you write at `/dashboard/new/`.
+
+### Publishing changes later
+
+Anything you write through the site's own editor is live immediately — no deploy needed.
+You only repeat this when the *code* changes:
+
+```bash
+cd ~/Educational-Blog-Website
+source ~/.virtualenvs/insight/bin/activate
+git pull
+pip install -r requirements.txt      # only if requirements.txt changed
+python manage.py migrate
+python manage.py collectstatic --no-input
+```
+
+Then hit **Reload** on the Web tab.
+
+### A custom domain
+
+Custom domains need a paid account on PythonAnywhere. Until then the
+`<username>.pythonanywhere.com` address is permanent. If you do add one later, update
+`ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS` and `SITE_URL` in `.env` and reload.
+
+### If something goes wrong
+
+The **Web** tab has an *Error log* and a *Server log*; the traceback you need is almost
+always at the bottom of the error log. Two common ones:
+
+- **"DisallowedHost"** — `ALLOWED_HOSTS` in `.env` does not list your address.
+- **Unstyled page** — the `/static/` mapping is missing or points at `static/` instead of
+  `staticfiles/`. Re-run `collectstatic` and check the path.
 
 ---
 
-## Option 2 — Fly.io
+## Backups
 
-A small always-on VM, no sleeping, using `Dockerfile` and `fly.toml`.
+The whole point of SQLite is that your data is one file. Keep copies of it:
 
 ```bash
-curl -L https://fly.io/install.sh | sh
-fly auth signup
+python manage.py backup            # writes backups/insight-<timestamp>.json
+```
 
-fly launch --no-deploy                      # accept the app name or change it in fly.toml
-fly postgres create --name insight-db       # then attach it:
-fly postgres attach insight-db              # sets DATABASE_URL for you
+That snapshot holds every post, comment, topic, tag and account, and keeps the ten most
+recent files. Download it from the **Files** tab now and then. Uploaded images are files
+rather than rows, so grab the `media/` directory too.
 
+Restoring into an empty database:
+
+```bash
+python manage.py migrate
+python manage.py loaddata backups/insight-<timestamp>.json
+```
+
+---
+
+## Other hosts
+
+### Render
+
+`render.yaml` and `build.sh` deploy the app with Postgres as a blueprint (**New →
+Blueprint**, pick the repo, **Apply**). Note two free-tier limits before relying on it:
+the web service **sleeps after 15 minutes idle**, and free Postgres databases **expire 30
+days after creation**, with a 14-day grace period before deletion. Good for showing
+someone; not a permanent home unless you pay.
+
+### Fly.io
+
+`Dockerfile` and `fly.toml` are ready. Needs a card on file even inside the free
+allowance.
+
+```bash
+fly launch --no-deploy
+fly postgres create --name insight-db && fly postgres attach insight-db
 fly secrets set SECRET_KEY="$(python -c 'import secrets; print(secrets.token_urlsafe(50))')" \
-                DEBUG=False \
-                DATABASE_SSL_REQUIRE=True \
-                ALLOWED_HOSTS="insight-blog.fly.dev"
-
+                DEBUG=False ALLOWED_HOSTS="insight-blog.fly.dev" DATABASE_SSL_REQUIRE=True
 fly deploy
 fly ssh console -C "python manage.py createsuperuser"
 ```
 
-Migrations run on boot (see the `CMD` in `Dockerfile`).
+### Railway, Koyeb, Cloud Run, Heroku-likes
 
----
+All accept the `Dockerfile` or the `Procfile`. Set `SECRET_KEY`, `DEBUG=False`,
+`ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `DATABASE_URL` and `DATABASE_SSL_REQUIRE=True`,
+and install `requirements-extras.txt` so the Postgres driver is present.
+[Neon](https://neon.tech) and [Supabase](https://supabase.com) both hand out a free
+Postgres connection string if the host does not include a database.
 
-## Option 3 — Railway, Koyeb, Cloud Run, Heroku-likes
+### Uploaded images on hosts with an ephemeral disk
 
-All of these accept either the `Dockerfile` or the `Procfile`:
-
-```
-release: python manage.py migrate --noinput
-web: gunicorn config.wsgi:application --log-file -
-```
-
-Set these environment variables:
-
-```
-SECRET_KEY=<50 random characters>
-DEBUG=False
-ALLOWED_HOSTS=<your-app-hostname>
-CSRF_TRUSTED_ORIGINS=https://<your-app-hostname>
-DATABASE_URL=<postgres url>
-DATABASE_SSL_REQUIRE=True
-```
-
-For a free database with any of them, [Neon](https://neon.tech) and
-[Supabase](https://supabase.com) both give you a Postgres instance and a connection string
-to paste into `DATABASE_URL`.
-
----
-
-## Option 4 — PythonAnywhere
-
-One always-on free web app, SQLite only, no sleeping. Good if you want the simplest thing
-that stays awake.
-
-1. Sign up, open a **Bash** console:
-
-   ```bash
-   git clone https://github.com/Neelakash-gituser/Educational-Blog-Website.git
-   cd Educational-Blog-Website
-   mkvirtualenv insight --python=/usr/bin/python3.11
-   pip install -r requirements.txt
-   python manage.py migrate
-   python manage.py createsuperuser
-   python manage.py collectstatic --no-input
-   ```
-
-2. **Web → Add a new web app → Manual configuration → Python 3.11**.
-3. Set the virtualenv to `/home/<you>/.virtualenvs/insight`.
-4. Edit the WSGI file to:
-
-   ```python
-   import os, sys
-   path = "/home/<you>/Educational-Blog-Website"
-   if path not in sys.path:
-       sys.path.insert(0, path)
-   os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings"
-   os.environ["DEBUG"] = "False"
-   os.environ["SECRET_KEY"] = "<50 random characters>"
-   os.environ["ALLOWED_HOSTS"] = "<you>.pythonanywhere.com"
-   os.environ["SECURE_SSL_REDIRECT"] = "False"   # PythonAnywhere terminates TLS itself
-   from django.core.wsgi import get_wsgi_application
-   application = get_wsgi_application()
-   ```
-
-5. Under **Static files**, map `/static/` to
-   `/home/<you>/Educational-Blog-Website/staticfiles` and `/media/` to
-   `/home/<you>/Educational-Blog-Website/media`.
-6. Reload the web app.
-
-SQLite on a single always-on worker is genuinely fine for a blog. Back it up by
-downloading `db.sqlite3` occasionally.
-
----
-
-## Uploaded images on a free tier
-
-Free hosts give you an **ephemeral filesystem**: anything uploaded through the editor
-disappears on the next deploy or restart. Two ways round it:
-
-**Cloudinary free tier (recommended).** Sign up at
-[cloudinary.com](https://cloudinary.com), copy the `CLOUDINARY_URL` from your dashboard
-(`cloudinary://key:secret@cloud-name`) and set it as an environment variable. The app
-detects it and stores every upload there instead; nothing else changes.
-
-**Skip uploads.** Posts look fine without cover images — each one falls back to its topic's
-emoji on a coloured gradient. You can also paste image URLs straight into Markdown:
-`![alt](https://…)`.
-
----
-
-## After the first deploy
-
-```bash
-python manage.py createsuperuser     # your login
-python manage.py seed_demo           # demo topics + articles (optional)
-python manage.py import_legacy       # bring over the old site's content (optional)
-```
-
-Then, in the admin:
-
-1. **Categories** — create your topics with icons and accent colours.
-2. **Profiles** — tick *Can write* for anyone who should be able to publish.
-3. **Users** — your own profile: display name, headline, bio, avatar, links.
-
-Set `SITE_NAME`, `SITE_TAGLINE` and `SITE_DESCRIPTION` in the environment to brand the
-site; they feed the header, footer and every meta tag.
+Render, Fly and most container hosts wipe the filesystem on every deploy. Set
+`CLOUDINARY_URL` (free tier at [cloudinary.com](https://cloudinary.com)) and uploads go
+there instead — the app detects it and switches storage on its own. PythonAnywhere has a
+real disk, so this does not apply there.
 
 ---
 
 ## Checklist before going live
 
-- [ ] `SECRET_KEY` set to something random and secret (never the repo default)
+- [ ] `SECRET_KEY` is long, random and not in git (the setup script generates one)
 - [ ] `DEBUG=False`
 - [ ] `ALLOWED_HOSTS` lists your real hostname
 - [ ] `CSRF_TRUSTED_ORIGINS` lists `https://your-hostname`
-- [ ] `DATABASE_URL` points at Postgres (not the bundled SQLite) on multi-worker hosts
-- [ ] `CLOUDINARY_URL` set if you plan to upload images
-- [ ] `python manage.py check --deploy` reports nothing you have not consciously accepted
-- [ ] A superuser exists and you can reach `/admin/`
+- [ ] Static files are mapped (or `collectstatic` has run on hosts using WhiteNoise)
+- [ ] A superuser exists and `/admin/` loads
+- [ ] `python manage.py check --deploy` shows nothing you have not consciously accepted
+- [ ] You have run `python manage.py backup` once and know where the file lands
